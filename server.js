@@ -1,4 +1,5 @@
 const express = require('express');
+const { default: inquirer } = require('inquirer');
 const db = require('./db/connection');
 const apiRoutes = require('./routes/apiRoutes');
 
@@ -21,12 +22,27 @@ app.use((req, res) => {
 db.connect(err => {
   if (err) throw err;
   console.log('Database connected.');
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+  startPrompt();
 });
 
 // Start prompt - What would you like to do?
+function startPrompt() {
+  inquirer.prompt({
+    type: "list",
+    name: "options",
+    message: "What would you like to do?"
+    choices: [
+      "View All Employees",
+      "Add Employee",
+      "Update Employee Role",
+      "View All Roles",
+      "Add Roles",
+      "View All Departments",
+      "Add Department",
+      "Quit"
+    ]
+  }) // then based on choice, proceed to function
+}
 // View All Employees - activates viewEmployees
 // Add Employee - activates addEmployee
 // --- What is the employee's first name?
@@ -61,3 +77,5 @@ db.connect(err => {
 // function addEmployee
 
 // function updateEmployeeRole
+
+// function quitApp
