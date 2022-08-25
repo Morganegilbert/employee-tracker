@@ -1,6 +1,7 @@
 // const express = require('express'); - dont need express server
-const { default: inquirer } = require('inquirer');
+const inquirer = require('inquirer');
 const db = require('./db/connection');
+const cTable = require("console.table");
 // const apiRoutes = require('./routes/apiRoutes'); - going to delete route server, dont need
 
 // const PORT = process.env.PORT || 3001; - not using server
@@ -42,6 +43,36 @@ function showOptions() {
       "Quit"
     ]
   }) // then based on choice, proceed to function
+    .then(({ options }) => {
+      switch (options) {
+        case "View All Employees":
+          viewEmployees();
+          break;
+        case "Remove Employee":
+          deleteEmployee();
+          break;
+        case "Add Employee":
+          addEmployee();
+          break;
+        case "Update Employee Role":
+          updateEmployeeRole();
+          break;
+        case "View All Roles":
+          viewRoles();
+          break;
+        case "Add Roles":
+          addRole();
+          break;
+        case "View All Departments":
+          viewDepartments();
+          break;
+        case "Add Department":
+          addDepartment();
+          break;
+        default:
+          process.exit();
+      }
+    });
 };
 // View All Employees - activates viewEmployees
 // Add Employee - activates addEmployee
@@ -107,11 +138,32 @@ const departmentOptions = {
 // Quit - stops
 
 // function viewDepartments
-
+function viewDepartments() {
+  // console.log("This is view departments");
+  db.query("SELECT * FROM department", function (err, results) {
+    console.table(results);
+    showOptions();
+  });
+}
 // function viewRoles
-
+function viewRoles() {
+  // console.log("This is view departments");
+  db.query("SELECT * FROM role", function (err, results) {
+    console.table(results);
+    showOptions();
+  });
+}
 // function viewEmployees
+// Query database
+function viewEmployees() {
+  console.log("This is view employees"); 
+  db.query("SELECT * FROM employee", function (err, results) {
+    console.table(results);
+    console.log("This is view employees results", results); 
 
+    showOptions();
+  });
+}
 // function addDepartment
 
 // function addRole
@@ -157,36 +209,30 @@ function deleteEmployee() {
   });
 }
 
-// Query database
-function showEmployees() {
-  db.query("SELECT * FROM employee", function (err, results) {
-    console.table(results);
-    showOptions();
-  });
-}
 
-function showOptions() {
-  inquirer
-    .prompt([
-      {
-        type: "list",
-        name: "choice",
-        message: "What would you like to do?",
-        choices: ["View All Employees", "Remove Employee", "Quit"],
-      },
-    ])
-    .then(({ choice }) => {
-      switch (choice) {
-        case "View All Employees":
-          showEmployees();
-          break;
-        case "Remove Employee":
-          deleteEmployee();
-          break;
-        default:
-          process.exit();
-      }
-    });
-}
 
-showOptions();
+// function showOptions() {
+//   inquirer
+//     .prompt([
+//       {
+//         type: "list",
+//         name: "choice",
+//         message: "What would you like to do?",
+//         choices: ["View All Employees", "Remove Employee", "Quit"],
+//       },
+//     ])
+//     .then(({ choice }) => {
+//       switch (choice) {
+//         case "View All Employees":
+//           showEmployees();
+//           break;
+//         case "Remove Employee":
+//           deleteEmployee();
+//           break;
+//         default:
+//           process.exit();
+//       }
+//     });
+// }
+
+// showOptions();
