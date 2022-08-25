@@ -165,7 +165,26 @@ function viewEmployees() {
   });
 }
 // function addDepartment
-
+function addDepartment() {
+  // console.log("This is view departments");
+  inquirer.prompt({
+    name: 'newDepartment',
+    type: "input",
+    message: "What department would you like to add?"
+  }).then(({ newDepartment }) => {
+    db.query(
+      `INSERT INTO department (name) VALUES (?)`,
+      newDepartment,
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        }
+        console.log("New department added");
+        showOptions();
+      }
+    );
+  });
+}
 // function addRole
 
 // function addEmployee
