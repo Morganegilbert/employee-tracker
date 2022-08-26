@@ -2,6 +2,7 @@
 const inquirer = require('inquirer');
 const db = require('./db/connection');
 const cTable = require("console.table");
+const { result } = require('lodash');
 // const apiRoutes = require('./routes/apiRoutes'); - going to delete route server, dont need
 
 // const PORT = process.env.PORT || 3001; - not using server
@@ -128,11 +129,6 @@ const roleOptions = [
 // --- Which department does the role belong to? - displaces current roles as choices - added '' to the database
 // View All Departments - activates viewDepartments
 // Add Department - activates viewDepartments
-const departmentOptions = {
-  type: "input",
-  name: "department",
-  message: "What is the name of the department?"
-};
 // --- What is the name of the department? - Added '' to the database
 
 // Quit - stops
@@ -145,25 +141,26 @@ function viewDepartments() {
     showOptions();
   });
 }
+
 // function viewRoles
 function viewRoles() {
   // console.log("This is view departments");
-  db.query("SELECT * FROM role", function (err, results) {
+  db.query("SELECT role.id, role.title, department.name AS department, role.salary FROM role JOIN department ON role.department_id = department.id;", function (err, results) {
     console.table(results);
     showOptions();
   });
 }
+
 // function viewEmployees
 // Query database
 function viewEmployees() {
   console.log("This is view employees"); 
-  db.query("SELECT * FROM employee", function (err, results) {
+  db.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, manager.name AS manager FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id LEFT JOIN manager ON manager.id = employee.manager;", function (err, results) {
     console.table(results);
-    console.log("This is view employees results", results); 
-
     showOptions();
   });
 }
+
 // function addDepartment
 function addDepartment() {
   // console.log("This is view departments");
@@ -185,10 +182,140 @@ function addDepartment() {
     );
   });
 }
+
+function departmentOptions() {    
+  let resultsArray = [];
+  db.query("SELECT department.name FROM department;", function (err, results) {
+    // console.log(results);
+    for (var i = 0; i < results.length; i++) {
+      // console.log(results[i].name);
+      resultsArray.push(results[i].name)
+    } 
+  // console.log(resultsArray);
+  return resultsArray;  
+});
+
+}
 // function addRole
+function addRole() {
+  db.query("SELECT * FROM department", function (err, results) {
+    const choices = results.map(({ id, name }) => {
+      return {
+        name: `${name}`,
+        value: id
+      };
+    });
 
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          name: "title",
+          message: "What is the name of the role?"
+        },
+        {
+          type: "input",
+          name: "salary",
+          message: "What is the salary of the role?"
+        },
+        {
+          type: "list",
+          name: "department_id",
+          message: "Which department does the role belong to?",
+          choices: choices,
+        },
+      ])
+      .then(({ title, salary, department_id }) => {
+        console.log("This is title", title, salary, department_id);
+        db.query(
+          `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
+          [title, salary, department_id],
+          (err, result) => {
+            if (err) {
+              console.log(err);
+            }
+            console.log(result);
+            showOptions();
+          }
+        );
+      });
+  });
+  // // console.log("This is view departments");
+  // let resultsArray = departmentOptions();
+
+  // inquirer.prompt([
+  //   {
+  //     type: "input",
+  //     name: "newRole",
+  //     message: "What is the name of the role?",
+  //   },
+  //   {
+  //     type: "number",
+  //     name: "roleSalary",
+  //     message: "What is the salary of the role?",
+  //   },
+  //   {
+  //     type: "list",
+  //     name: "roleDepartment",
+  //     message: "Which department does the role belong to?",
+  //     choices: resultsArray
+  //   }]).then(({ newRole, roleSalary, roleDepartment }) => {
+  //     if (department.name === roleDepartment) {
+  //       roleDepartment = department.id;
+  //     };
+  //     db.query(
+  //       `INSERT INTO role (title, salary, department_id) VALUES (?)`,
+  //       {newRole, roleSalary, roleDepartment},
+  //       (err, result) => {
+  //         if (err) {
+  //           console.log(err);
+  //         }
+  //         console.log("New role added");
+  //         showOptions();
+  //       }
+  //     );
+  //   });
+}
 // function addEmployee
-
+function addEmployee() {
+  // console.log("This is view departments");
+  db.query("SELECT * FROM role", (err))
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "firstName",
+      message: "What is the employee's first name?"
+    },
+    {
+      type: "input",
+      name: "lastName",
+      message: "What is the employee's last name?"
+    },
+    {
+      type: "list",
+      name: "employeeManager",
+      message: "What is the employee's role?",
+      choices: roleChoices,
+    },
+    {
+      type: "list",
+      name: "employeeManager",
+      message: "Who is the employee's manager?",
+      choices: managerChoices,
+    }]).then(({ firstName, lastName, employeeManager }) => {
+      db.query(
+        `INSERT INTO role (first_name, last_name, role_id, manager) VALUES (?)`,
+        {firstName, lastName, employeeManager},
+        (err, result) => {
+          if (err) {
+            console.log(err);
+          }
+          console.log("New role added");
+          showOptions();
+        }
+      );
+    });
+}
 // function updateEmployeeRole
 
 // function quitApp
