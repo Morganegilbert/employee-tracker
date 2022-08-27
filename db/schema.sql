@@ -9,6 +9,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS department;
 DROP TABLE IF EXISTS role;
 DROP TABLE IF EXISTS employee;
+DROP TABLE IF EXISTS manager;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- department table setup

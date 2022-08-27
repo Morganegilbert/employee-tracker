@@ -176,6 +176,7 @@ function addEmployee() {
         name: `${name}`,
         value: id
       };
+      
     });
   
     // prompts for employee first and last name, role from current choices, and employee's manager from manager choices
@@ -201,7 +202,7 @@ function addEmployee() {
       type: "list",
       name: "employeeManager",
       message: "Who is the employee's manager?",
-      choices: managerChoices,
+      choices: managerChoices
     }
    ])
   .then(({ firstName, lastName, employeeRole, employeeManager }) => {
