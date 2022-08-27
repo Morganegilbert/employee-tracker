@@ -1,24 +1,8 @@
-// const express = require('express'); - dont need express server
 const inquirer = require('inquirer');
 const db = require('./db/connection');
 const cTable = require("console.table");
 const { result } = require('lodash');
-// const apiRoutes = require('./routes/apiRoutes'); - going to delete route server, dont need
 
-// const PORT = process.env.PORT || 3001; - not using server
-// const app = express();
-
-// Express middleware - dont need middleware
-// app.use(express.urlencoded({ extended: false }));
-// app.use(express.json());
-
-// Use apiRoutes - dont need api
-// app.use('/api', apiRoutes);
-
-// Default response for any other request (Not Found) - not using api
-// app.use((req, res) => {
-//   res.status(404).end();
-// });
 
 // Start server after DB connection
 db.connect(err => {
@@ -27,7 +11,7 @@ db.connect(err => {
   showOptions();
 });
 
-// Start prompt - What would you like to do?
+// Start prompt - displays which options to go through
 function showOptions() {
   inquirer.prompt({
     type: "list",
@@ -75,100 +59,43 @@ function showOptions() {
       }
     });
 };
-// View All Employees - activates viewEmployees
-// Add Employee - activates addEmployee
-// --- What is the employee's first name?
-const employeeOptions = [
-  {
-    type: "input",
-    name: "first_name",
-    message: "What is the employee's first name?"
-  },
-  {
-    type: "input",
-    name: "last_name",
-    message: "What is the employee's last name?"
-  },
-  {
-    type: "list",
-    name: "employee_manager",
-    message: "Who is the employee's manager?",
-    choices: [
-      // add manager options
-    ]
-  }
-];
-// --- What is the employee's last name?
-// --- What is the employee's role? - shows list of roles
-// --- Who is the employee's manager? - shows list of employees - added '' to the database
-// Update Employee Role - activates updateEmployeeRole
-// --- Which employee's role do you want to update? - shows list of employees
-// --- Which role do you want to assign the selected employee? - shows list of roles - updated employee's role
 
-// View All Roles - activates viewRoles
-// Add Role - activates addRole
-const roleOptions = [
-  {
-    type: "input",
-    name: "role",
-    message: "What is the name of the role?"
-  },
-  {
-    type: "input",
-    name: "role_salary",
-    message: "What is the salary of the role?"
-  },
-  {
-    type: "list",
-    name: "department",
-    message: "Which department does the role belong to?"
-  }
-];
-// --- What is the name of the role?
-// --- What is the salary of the role?
-// --- Which department does the role belong to? - displaces current roles as choices - added '' to the database
-// View All Departments - activates viewDepartments
-// Add Department - activates viewDepartments
-// --- What is the name of the department? - Added '' to the database
-
-// Quit - stops
-
-// function viewDepartments
+// function to view all departments
 function viewDepartments() {
-  // console.log("This is view departments");
+//  query selects all from departments, then goes back to show options
   db.query("SELECT * FROM department", function (err, results) {
     console.table(results);
     showOptions();
   });
 }
 
-// function viewRoles
+// function to view all roles
 function viewRoles() {
-  // console.log("This is view departments");
+//  query selects all from roles, then goes back to show options
   db.query("SELECT role.id, role.title, department.name AS department, role.salary FROM role JOIN department ON role.department_id = department.id;", function (err, results) {
     console.table(results);
     showOptions();
   });
 }
 
-// function viewEmployees
-// Query database
+// function to view all employees
 function viewEmployees() {
-  console.log("This is view employees"); 
+//  query selects employee id, employee first and last name, role title, department name, salary, and manager name as the manager's actual name, then goes back to show options
   db.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, manager.name AS manager FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id LEFT JOIN manager ON manager.id = employee.manager;", function (err, results) {
     console.table(results);
     showOptions();
   });
 }
 
-// function addDepartment
+// function to add a department
 function addDepartment() {
-  // console.log("This is view departments");
+  // prompt for question input
   inquirer.prompt({
     name: 'newDepartment',
     type: "input",
     message: "What department would you like to add?"
   }).then(({ newDepartment }) => {
+    // adds the input to department name
     db.query(
       `INSERT INTO department (name) VALUES (?)`,
       newDepartment,
@@ -183,21 +110,9 @@ function addDepartment() {
   });
 }
 
-// function departmentOptions() {    
-//   let resultsArray = [];
-//   db.query("SELECT department.name FROM department;", function (err, results) {
-//     // console.log(results);
-//     for (var i = 0; i < results.length; i++) {
-//       // console.log(results[i].name);
-//       resultsArray.push(results[i].name)
-//     } 
-//   // console.log(resultsArray);
-//   return resultsArray;  
-// });
-
-
-// function addRole
+// function to add a role
 function addRole() {
+  // query selects all departments
   db.query("SELECT * FROM department", function (err, results) {
     const choices = results.map(({ id, name }) => {
       return {
@@ -206,6 +121,7 @@ function addRole() {
       };
     });
 
+//  All departments are shown at choice, prompts for input of role name and salary.
     inquirer
       .prompt([
         {
@@ -226,6 +142,7 @@ function addRole() {
         },
       ])
       .then(({ title, salary, department_id }) => {
+        //  Query adds anwers to role table - title, salary, department id
         db.query(
           `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
           [title, salary, department_id],
@@ -233,15 +150,18 @@ function addRole() {
             if (err) {
               console.log(err);
             }
-            console.log(result);
+            //  returns to show options
+            console.log("New role added");
             showOptions();
           }
         );
       });
   });
 }
-// function addEmployee
+
+// function to add an employee
 function addEmployee() {
+  //  selects all from role for choice options below
   db.query("SELECT * FROM role", function (err, results) {
     const roleChoices = results.map(({ id, title }) => {
       return {
@@ -249,7 +169,7 @@ function addEmployee() {
         value: id
       };
     });
-  
+  //  selects all from manager for choice options below
   db.query("SELECT * FROM manager", function (err, results) {
     const managerChoices = results.map(({ id, name }) => {
       return {
@@ -258,6 +178,7 @@ function addEmployee() {
       };
     });
   
+    // prompts for employee first and last name, role from current choices, and employee's manager from manager choices
   inquirer
     .prompt([
     {
@@ -284,6 +205,7 @@ function addEmployee() {
     }
    ])
   .then(({ firstName, lastName, employeeRole, employeeManager }) => {
+    //  inserts answers to employee table
         db.query(
           `INSERT INTO employee (first_name, last_name, role_id, manager) VALUES (?, ?, ?, ?)`,
           [firstName, lastName, employeeRole, employeeManager],
@@ -291,7 +213,8 @@ function addEmployee() {
             if (err) {
               console.log(err);
             }
-            console.log(result);
+            // returns to show options
+            console.log("Employee added");
             showOptions();
           }
         );
@@ -300,11 +223,10 @@ function addEmployee() {
 });
 }
 
-// --- Which employee's role do you want to update? - shows list of employees
-// --- Which role do you want to assign the selected employee? - shows list of roles - updated employee's role
 
-// function updateEmployeeRole
+// function to update an employee's role
 function updateEmployeeRole() {
+  //  selects all from role for choices
   db.query("SELECT * FROM role", function (err, results) {
     const roleChoices = results.map(({ id, title }) => {
       return {
@@ -312,7 +234,7 @@ function updateEmployeeRole() {
         value: id
       };
     });
-  
+  //  selects all from employee for choices
   db.query("SELECT * FROM employee", function (err, results) {
     const employeeChoices = results.map(({ id, first_name, last_name }) => {
       return {
@@ -320,7 +242,7 @@ function updateEmployeeRole() {
         value: id
       };
     });
-  
+  // asks which employee to update from employee table then provides role options from role table
   inquirer
     .prompt([
     {
@@ -337,6 +259,7 @@ function updateEmployeeRole() {
     }
    ])
   .then(({ role, employee }) => {
+    // updates the employee's current role in the table to the new role based on the id
         db.query(
           `UPDATE employee SET role_id = ? WHERE id = ?`,
           [role, employee],
@@ -352,67 +275,38 @@ function updateEmployeeRole() {
   });
 });
 }
-// function quitApp
 
-// Added from provided code
-function deleteEmployee() {
-  db.query("SELECT * FROM employee", function (err, results) {
-    const choices = results.map(({ id, first_name, last_name }) => {
-      return {
-        name: `${first_name} ${last_name}`,
-        value: id,
-      };
-    });
-
-    inquirer
-      .prompt([
-        {
-          type: "list",
-          name: "employeeId",
-          message: "Which employee would you like to remove?",
-          choices: choices,
-        },
-      ])
-      .then(({ employeeId }) => {
-        db.query(
-          `DELETE FROM employee WHERE id = ?`,
-          employeeId,
-          (err, result) => {
-            if (err) {
-              console.log(err);
-            }
-            console.log(result);
-            showOptions();
-          }
-        );
-      });
-  });
-}
-
-
-
-// function showOptions() {
-//   inquirer
-//     .prompt([
-//       {
-//         type: "list",
-//         name: "choice",
-//         message: "What would you like to do?",
-//         choices: ["View All Employees", "Remove Employee", "Quit"],
-//       },
-//     ])
-//     .then(({ choice }) => {
-//       switch (choice) {
-//         case "View All Employees":
-//           showEmployees();
-//           break;
-//         case "Remove Employee":
-//           deleteEmployee();
-//           break;
-//         default:
-//           process.exit();
-//       }
+// Added from provided code - will update later for bonus
+// function deleteEmployee() {
+//   db.query("SELECT * FROM employee", function (err, results) {
+//     const choices = results.map(({ id, first_name, last_name }) => {
+//       return {
+//         name: `${first_name} ${last_name}`,
+//         value: id,
+//       };
 //     });
-// }
 
-// showOptions();
+//     inquirer
+//       .prompt([
+//         {
+//           type: "list",
+//           name: "employeeId",
+//           message: "Which employee would you like to remove?",
+//           choices: choices,
+//         },
+//       ])
+//       .then(({ employeeId }) => {
+//         db.query(
+//           `DELETE FROM employee WHERE id = ?`,
+//           employeeId,
+//           (err, result) => {
+//             if (err) {
+//               console.log(err);
+//             }
+//             console.log(result);
+//             showOptions();
+//           }
+//         );
+//       });
+//   });
+// }
