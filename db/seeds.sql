@@ -25,10 +25,10 @@ VALUES
 INSERT INTO employee
   (first_name, last_name, role_id, manager)
 VALUES
-  ('Doe', 'John', 2, 1),
-  ('Doe', 'Jane', 3, 4),
-  ('Radcliffe', 'Daniel', 1, 1),
-  ('Wood', 'Elijah', 4, 2);
+  ('John', 'Doe', 2, 1),
+  ('Jane', 'Doe', 3, 4),
+  ('Daniel', 'Radcliffe', 1, 1),
+  ('Elijah', 'Wood', 4, 2);
 
 INSERT INTO Manager
   (name, employee_id)
