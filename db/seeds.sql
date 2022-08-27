@@ -1,5 +1,5 @@
 
--- change to department with name
+-- seeds department table with name values
 INSERT INTO department
   (name)
 VALUES
@@ -8,7 +8,7 @@ VALUES
   ('Finance'),
   ('Legal');
 
--- change to role with title, salary, and department id
+-- seeds role table with title, salary, and department_id values
 INSERT INTO role
   (title, salary, department_id)
 VALUES
@@ -21,7 +21,7 @@ VALUES
   ('Legal Team Lead', '250000', 4),
   ('Lawyer', '190000', 4);
 
--- change to employee with first name, last name, role id, and manager id
+-- seeds employee table with first_name, last_name, role_id, and manager
 INSERT INTO employee
   (first_name, last_name, role_id, manager)
 VALUES
@@ -30,6 +30,7 @@ VALUES
   ('Daniel', 'Radcliffe', 1, 1),
   ('Elijah', 'Wood', 4, 2);
 
+-- seeds manager table with name and employee_id values
 INSERT INTO Manager
   (name, employee_id)
 VALUES

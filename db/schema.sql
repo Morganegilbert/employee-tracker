@@ -1,20 +1,23 @@
+-- creates database if there is none
 CREATE database IF NOT EXISTS employee_DB;
 
+-- database name and foreign key check
 USE employee_DB;
 SET FOREIGN_KEY_CHECKS = 0;
 
+-- dropts tables if they exist
 DROP TABLE IF EXISTS department;
 DROP TABLE IF EXISTS role;
 DROP TABLE IF EXISTS employee;
 SET FOREIGN_KEY_CHECKS = 1;
 
--- make department table - need to add foreign key info
+-- department table setup
 CREATE TABLE department (
   id INTEGER AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(50) NOT NULL
   );
 
--- make role table - need to add foreign key info
+-- role table setup
 CREATE TABLE role (
   id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(30) NOT NULL,
@@ -25,7 +28,7 @@ CREATE TABLE role (
   ON DELETE SET NULL
 );
 
--- make employee table - need to add foreign key info
+-- employee table setup
 CREATE TABLE employee (
   id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
   first_name VARCHAR(30) NOT NULL,
@@ -37,6 +40,7 @@ CREATE TABLE employee (
   ON DELETE CASCADE
 );
 
+-- manager table setup
 CREATE TABLE manager (
   id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY, 
   name VARCHAR(60) NOT NULL,
