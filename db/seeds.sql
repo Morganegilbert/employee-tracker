@@ -1,19 +1,37 @@
+
 -- change to department with name
-INSERT INTO voters
-  (first_name, last_name, email)
+INSERT INTO department
+  (name)
 VALUES
-  ('James', 'Fraser', 'jf@goldenbough.edu'),
+  ('Sales'),
+  ('Engineering'),
+  ('Finance'),
+  ('Legal');
 
 -- change to role with title, salary, and department id
-INSERT INTO parties
-  (name, description)
+INSERT INTO role
+  (title, salary, department_id)
 VALUES
-  ('JS Juggernauts', 'The JS Juggernauts eat, breathe, and sleep JavaScript. They can build everything you could ever want in JS, including a new kitchen sink.'),
+  ('Sales Lead', '100000', 1),
+  ('Salesperson', '80000', 1),
+  ('Lead Engineer', '150000', 2),
+  ('Software Engineer', '120000', 2),
+  ('Account Manager', '160000', 3),
+  ('Accountant', '125000', 3),
+  ('Legal Team Lead', '250000', 4),
+  ('Lawyer', '190000', 4);
 
 -- change to employee with first name, last name, role id, and manager id
-INSERT INTO candidates
-  (first_name, last_name, party_id, industry_connected)
+INSERT INTO employee
+  (first_name, last_name, role_id, manager)
 VALUES
-  ('Ronald', 'Firbank', 1, 1),
+  ('Doe', 'John', 2, 1),
+  ('Doe', 'Jane', 3, 4),
+  ('Radcliffe', 'Daniel', 1, 1),
+  ('Wood', 'Elijah', 4, 2);
 
-  
+INSERT INTO Manager
+  (name, employee_id)
+VALUES
+  ('Jane Doe', 1),
+  ('John Doe', 2);
