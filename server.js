@@ -183,19 +183,19 @@ function addDepartment() {
   });
 }
 
-function departmentOptions() {    
-  let resultsArray = [];
-  db.query("SELECT department.name FROM department;", function (err, results) {
-    // console.log(results);
-    for (var i = 0; i < results.length; i++) {
-      // console.log(results[i].name);
-      resultsArray.push(results[i].name)
-    } 
-  // console.log(resultsArray);
-  return resultsArray;  
-});
+// function departmentOptions() {    
+//   let resultsArray = [];
+//   db.query("SELECT department.name FROM department;", function (err, results) {
+//     // console.log(results);
+//     for (var i = 0; i < results.length; i++) {
+//       // console.log(results[i].name);
+//       resultsArray.push(results[i].name)
+//     } 
+//   // console.log(resultsArray);
+//   return resultsArray;  
+// });
 
-}
+
 // function addRole
 function addRole() {
   db.query("SELECT * FROM department", function (err, results) {
@@ -226,7 +226,6 @@ function addRole() {
         },
       ])
       .then(({ title, salary, department_id }) => {
-        console.log("This is title", title, salary, department_id);
         db.query(
           `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
           [title, salary, department_id],
@@ -240,47 +239,27 @@ function addRole() {
         );
       });
   });
-  // // console.log("This is view departments");
-  // let resultsArray = departmentOptions();
-
-  // inquirer.prompt([
-  //   {
-  //     type: "input",
-  //     name: "newRole",
-  //     message: "What is the name of the role?",
-  //   },
-  //   {
-  //     type: "number",
-  //     name: "roleSalary",
-  //     message: "What is the salary of the role?",
-  //   },
-  //   {
-  //     type: "list",
-  //     name: "roleDepartment",
-  //     message: "Which department does the role belong to?",
-  //     choices: resultsArray
-  //   }]).then(({ newRole, roleSalary, roleDepartment }) => {
-  //     if (department.name === roleDepartment) {
-  //       roleDepartment = department.id;
-  //     };
-  //     db.query(
-  //       `INSERT INTO role (title, salary, department_id) VALUES (?)`,
-  //       {newRole, roleSalary, roleDepartment},
-  //       (err, result) => {
-  //         if (err) {
-  //           console.log(err);
-  //         }
-  //         console.log("New role added");
-  //         showOptions();
-  //       }
-  //     );
-  //   });
 }
 // function addEmployee
 function addEmployee() {
-  // console.log("This is view departments");
-  db.query("SELECT * FROM role", (err))
-  inquirer.prompt([
+  db.query("SELECT * FROM role", function (err, results) {
+    const roleChoices = results.map(({ id, title }) => {
+      return {
+        name: `${title}`,
+        value: id
+      };
+    });
+  
+  db.query("SELECT * FROM manager", function (err, results) {
+    const managerChoices = results.map(({ id, name }) => {
+      return {
+        name: `${name}`,
+        value: id
+      };
+    });
+  
+  inquirer
+    .prompt([
     {
       type: "input",
       name: "firstName",
@@ -293,7 +272,7 @@ function addEmployee() {
     },
     {
       type: "list",
-      name: "employeeManager",
+      name: "employeeRole",
       message: "What is the employee's role?",
       choices: roleChoices,
     },
@@ -302,22 +281,77 @@ function addEmployee() {
       name: "employeeManager",
       message: "Who is the employee's manager?",
       choices: managerChoices,
-    }]).then(({ firstName, lastName, employeeManager }) => {
-      db.query(
-        `INSERT INTO role (first_name, last_name, role_id, manager) VALUES (?)`,
-        {firstName, lastName, employeeManager},
-        (err, result) => {
-          if (err) {
-            console.log(err);
+    }
+   ])
+  .then(({ firstName, lastName, employeeRole, employeeManager }) => {
+        db.query(
+          `INSERT INTO employee (first_name, last_name, role_id, manager) VALUES (?, ?, ?, ?)`,
+          [firstName, lastName, employeeRole, employeeManager],
+          (err, result) => {
+            if (err) {
+              console.log(err);
+            }
+            console.log(result);
+            showOptions();
           }
-          console.log("New role added");
-          showOptions();
-        }
-      );
-    });
+        );
+      });
+  });
+});
 }
-// function updateEmployeeRole
 
+// --- Which employee's role do you want to update? - shows list of employees
+// --- Which role do you want to assign the selected employee? - shows list of roles - updated employee's role
+
+// function updateEmployeeRole
+function updateEmployeeRole() {
+  db.query("SELECT * FROM role", function (err, results) {
+    const roleChoices = results.map(({ id, title }) => {
+      return {
+        name: `${title}`,
+        value: id
+      };
+    });
+  
+  db.query("SELECT * FROM employee", function (err, results) {
+    const employeeChoices = results.map(({ id, first_name, last_name }) => {
+      return {
+        name: `${first_name} ${last_name}`,
+        value: id
+      };
+    });
+  
+  inquirer
+    .prompt([
+    {
+      type: "list",
+      name: "employee",
+      message: "Which employee's role do you want to update?",
+      choices: employeeChoices
+    },
+    {
+      type: "list",
+      name: "role",
+      message: "Which role do you want to assign the selected employee?",
+      choices: roleChoices
+    }
+   ])
+  .then(({ role, employee }) => {
+        db.query(
+          `UPDATE employee SET role_id = ? WHERE id = ?`,
+          [role, employee],
+          (err, result) => {
+            if (err) {
+              console.log(err);
+            }
+            console.log(result);
+            showOptions();
+          }
+        );
+      });
+  });
+});
+}
 // function quitApp
 
 // Added from provided code
